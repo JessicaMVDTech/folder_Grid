@@ -213,11 +213,6 @@ function ColumnMenuSample() {
       setParen(args.rowData.Id);
       console.log('parent', args.rowData.Id);
     }
-    /*let breadcrumb,
-      breadcrumbInst,
-      breadcrumbs = document
-        .querySelector('.content-wrapper')
-        .getElementsByClassName('e-breadcrumb');*/
     const component = getComponent('bread', 'breadcrumb');
     console.log('breadcrumb', component);
     /* for (let i = 0; i < component..length; i++) {
@@ -231,8 +226,8 @@ function ColumnMenuSample() {
   const itemClick = (args) => {
     console.log('itemClik', args);
     let newRut = [];
-    rec(newRut, args.item.id);
-    setRuta(newRut);
+    //rec(newRut, args.item.id);
+    //setRuta(newRut);
     setParen(args.item?.id ?? null);
     console.log('itemmm', args);
   };
