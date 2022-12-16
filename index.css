@@ -1,0 +1,18 @@
+/**
+* ej2 grid Context Menu styles
+*/
+
+.e-colmenu.e-contextmenu {
+  width: auto !important;
+}
+.e-contextmenu-wrapper ul.e-contextmenu {
+  width: auto !important;
+}
+
+.e-grid .e-toolbar-items .classShow {
+  background-color: rgb(191, 191, 204);
+}
+
+.e-grid .e-toolbar-items .classHiden {
+  background-color: none;
+}
