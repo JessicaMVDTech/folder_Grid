@@ -43,8 +43,7 @@ function ColumnMenuSample() {
 
   const [showFolder, setShowFolder] = React.useState(true);
   const [dataGrid, setDataGrid] = React.useState(dataColumn);
-  const [parent, setParen] = React.useState(null);
-  const [ruta, setRuta] = React.useState([{ text: 'Home', id: null }]);
+  const [routes, setRoutes] = React.useState([{ text: 'Home', id: null }]);
   const [histParent, setHistParent] = React.useState([]);
   const [isSelectDrag, setIsSelectDrag] = React.useState(CLASS_HIDEN);
   const [isSelectEdit, setIsSelectEdit] = React.useState(CLASS_HIDEN);
@@ -76,21 +75,15 @@ function ColumnMenuSample() {
   });
 
   React.useEffect(() => {
-    console.log('parent useEffect', parent);
-    //const dataParentId = dataColumn.filter((e) => e.ParentFolderId === parent);
-    //console.log('data', dataParentId);
-    //setDataGrid(dataParentId);
-
+    const idParent = routes[routes.length - 1].id;
     if (showFolder) {
-      setDataGrid(dataColumn.filter((e) => e.ParentFolderId === parent));
+      setDataGrid(dataColumn.filter((e) => e.ParentFolderId === idParent));
     } else {
       setDataGrid(
-        dataColumn.filter((e) => e.ParentFolderId === parent && !e.IsFolder)
+        dataColumn.filter((e) => e.ParentFolderId === idParent && !e.IsFolder)
       );
     }
-
-    //rec(parent);
-  }, [parent]);
+  }, [routes, showFolder]);
 
   const ICON_DRAG = 'e-drop-down'; //'e-sub-total'
   const ICON_EDIT = 'e-conditional-formatting';
@@ -188,85 +181,36 @@ function ColumnMenuSample() {
     );
   };
 
-  console.log(ruta);
-
-  let rec = (newRut, parentId = null) => {
-    //to-do verificar funcion para que elimine datos de una ruta y los agrgue de forma correcta
-    console.log('parentId', parentId);
-    let parent = dataColumn.filter((e) => e.Id === parentId)[0];
-    console.log(parent);
-    if (!parent) {
-      newRut.unshift({ text: 'Home', id: null });
-      return;
-    } else {
-      //const item = { text: args.rowData.Nombre, id: args.rowData.Id };
-      newRut.unshift({ text: parent.Nombre, id: parent.Id });
-      rec(newRut, parent.ParentFolderId);
-    }
-  };
-
-  const recordClickEvent = (args) => {
-    console.log('recordClick', args);
+  const rowClick = (args) => {
     if (args.rowData.IsFolder) {
       const item = { text: args.rowData.Nombre, id: args.rowData.Id };
-      setRuta([...ruta, item]);
-      setParen(args.rowData.Id);
-      console.log('parent', args.rowData.Id);
+      const rout = [...routes, item];
+      console.log('rout', rout);
+      //setRoutes(rout);
+      const component = getComponent('bread', 'breadcrumb');
+      component.items = rout;
+      console.log('component', component);
     }
+  };
+
+  const breadcrumbClick = (args) => {
+    const rouIndex = routes.findIndex((e) => e.id == args.item.id);
+    const rouAux = routes.filter((e, i) => i <= rouIndex);
+    console.log('routes2', rouAux);
+    //setRoutes(rouAux);
     const component = getComponent('bread', 'breadcrumb');
-    console.log('breadcrumb', component);
-    /* for (let i = 0; i < component..length; i++) {
-            breadcrumb = breadcrumbs[i];
-            breadcrumbInst = getComponent(breadcrumb, 'breadcrumb');
-            breadcrumbInst.activeItem = breadcrumbInst.items[breadcrumbInst.items.length - 1].text;
-        }*/
-  };
-  console.log('ruta', ruta);
-
-  const itemClick = (args) => {
-    console.log('itemClik', args);
-    let newRut = [];
-    //rec(newRut, args.item.id);
-    //setRuta(newRut);
-    setParen(args.item?.id ?? null);
-    console.log('itemmm', args);
-  };
-
-  const breadcrumbTemplate = () => {
-    return <span className="e-bicons e-arrow"></span>;
-  };
-
-  /*const customTemplate = (data) => {
-    return (
-      <div className="e-custom-item">
-        <div className="e-custom-icon">
-          <span className="e-bicons e-frame e-check"></span>
-          <span className="e-label">{data.text}</span>
-        </div>
-      </div>
-    );
-  };*/
-  const contentBreadcrumb = (ruta) => {
-    console.log('content', ruta);
-    return ruta.map((e) => (
-      <BreadcrumbItemDirective
-        key={e.id}
-        id={e.id}
-        text={e.text}
-      ></BreadcrumbItemDirective>
-    ));
+    component.items = rouAux;
   };
 
   const changeSwitchFolder = (args) => {
     setShowFolder(args.checked);
-    console.log('swich', args);
-    if (args.checked) {
+    /*if (args.checked) {
       setDataGrid(dataColumn.filter((e) => e.ParentFolderId === parent));
     } else {
       setDataGrid(
         dataColumn.filter((e) => e.ParentFolderId === parent && !e.IsFolder)
       );
-    }
+    }*/
   };
 
   return (
@@ -284,33 +228,17 @@ function ColumnMenuSample() {
         </div>
         <BreadcrumbComponent
           id="bread"
-          ref={(scope) => {
-            breadObj = scope;
-          }}
           maxItems={2}
           enableNavigation={false}
           //separatorTemplate={breadcrumbTemplate}
-          overflowMode="None"
-          items={ruta}
-          itemClick={itemClick}
+          overflowMode="Collapsed"
+          items={routes}
+          itemClick={breadcrumbClick}
           enableActiveItemNavigation={false}
-          //itemTemplate={customTemplate}
-        >
-          {/*<BreadcrumbItemsDirective>
-            {/*ruta.map((e) => (
-              <BreadcrumbItemDirective
-                key={e.id}
-                id={e.id}
-                text={e.text}
-              ></BreadcrumbItemDirective>
-            ))}
-          </BreadcrumbItemsDirective>*/}
-        </BreadcrumbComponent>
+          activeItem={routes[routes.length - 1].text}
+        ></BreadcrumbComponent>
         <GridComponent
           id="GridView"
-          ref={(scope) => {
-            gridObj = scope;
-          }}
           dataSource={dataGrid}
           allowFiltering={true}
           allowGrouping={true}
@@ -328,7 +256,7 @@ function ColumnMenuSample() {
           sortSettings={sortingOptions}
           toolbar={TOOLBAR_SETTINGS}
           toolbarClick={clickHandler}
-          recordClick={recordClickEvent}
+          recordClick={rowClick}
         >
           <ColumnsDirective>
             <ColumnDirective
@@ -336,15 +264,12 @@ function ColumnMenuSample() {
               width="200"
               textAlign="Right"
               isPrimaryKey={true}
-              //showInColumnChooser={false}
-              //template={templateFolder}
             ></ColumnDirective>
             <ColumnDirective
               field="IsFolder"
               width="200"
               textAlign="Right"
               isPrimaryKey={true}
-              //showInColumnChooser={false}
               template={templateFolder}
             ></ColumnDirective>
             <ColumnDirective
